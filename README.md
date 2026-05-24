@@ -38,13 +38,57 @@ pip install -r requirements.txt
 
 ### 2. 获取凭证 / Get Credentials
 
-在浏览器中登录[微信公众平台](https://mp.weixin.qq.com)，打开任意公众号的文章管理页面，从开发者工具中提取三个参数：
+首先在浏览器中登录[微信公众平台](https://mp.weixin.qq.com)，然后按以下步骤分别获取三个参数。
 
-| 参数 | 来源 |
-|------|------|
-| `WEIXIN_COOKIE` | Network 面板中任意请求的 `Cookie` 请求头（完整字符串） |
-| `WEIXIN_TOKEN` | URL 查询参数 `token` 的值 |
-| `WEIXIN_FAKEID` | URL 查询参数 `fakeid` 的值 |
+#### 2.1 获取 Cookie 和 Token
+
+这两个参数来自同一个 API 请求，可以一起获取：
+
+**① 打开开发者工具**
+
+按 `F12` 打开浏览器开发者工具，切换到 **Network**（网络）标签页。
+
+**② 触发请求**
+
+在微信公众平台后台左侧菜单点击「素材管理」→「已发表内容」（或直接刷新已发表文章列表页面），此时 Network 面板会出现大量请求。
+
+**③ 找到目标请求**
+
+在 Network 面板的搜索过滤框中输入 `appmsg`，会过滤出一个名为 `appmsg?action=list_ex&...` 的请求，点击它。
+
+**④ 复制 Cookie**
+
+右侧面板切换到 **Headers** 标签 → 找到 **Request Headers** 部分 → 找到 `Cookie` 那一行，右键点击、全选、复制。这就是 `WEIXIN_COOKIE` 的值（很长一串字符串）。
+
+**⑤ 复制 Token**
+
+仍在 Headers 面板中 → 往下滚到 **Query String Parameters** 部分 → 找到 `token` 字段，复制它的值（一长串数字）。这就是 `WEIXIN_TOKEN`。
+
+> 也可以直接看请求 URL，例如：
+> `https://mp.weixin.qq.com/cgi-bin/appmsg?action=list_ex&...&token=123456789&...`
+> URL 中 `token=` 后面的数字就是 Token。
+
+---
+
+#### 2.2 获取 Fakeid
+
+Fakeid 是目标公众号的内部 ID，需要从公众号文章页面获取：
+
+**① 打开目标公众号的文章**
+
+在浏览器中打开你想要抓取的公众号的**任意一篇文章**（手机分享链接或电脑端打开均可）。
+
+**② 查看页面源代码**
+
+按 `F12` 打开开发者工具 → 切换到 **Elements**（元素）标签 → 按 `Ctrl+F` 打开搜索 → 输入 `var biz` 搜索。
+
+**③ 复制 Fakeid**
+
+页面源代码中会找到类似 `var biz = "MzI5ODUzMDE1Mg=="` 的一行，复制引号内的 Base64 字符串（例如 `MzI5ODUzMDE1Mg==`）。这就是 `WEIXIN_FAKEID`。
+
+---
+
+> **提示**：如果找不到 `var biz`，也可以按 `Ctrl+U` 打开「查看网页源代码」，直接 `Ctrl+F` 搜索 `biz`。
 
 ### 3. 配置 / Configure
 
